@@ -12,9 +12,20 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 27/12/2023 21:50:10
+ Date: 28/12/2023 17:21:29
 */
 
+
+-- ----------------------------
+-- Sequence structure for Customer_customerID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."Customer_customerID_seq";
+CREATE SEQUENCE "public"."Customer_customerID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
 
 -- ----------------------------
 -- Sequence structure for StorageServerStatus_storageServerStatusID_seq
@@ -37,6 +48,22 @@ MINVALUE  1
 MAXVALUE 2147483647
 START 1
 CACHE 1;
+
+-- ----------------------------
+-- Table structure for Customer
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."Customer";
+CREATE TABLE "public"."Customer" (
+  "customerID" int4 NOT NULL DEFAULT nextval('"Customer_customerID_seq"'::regclass),
+  "name" varchar(35) COLLATE "pg_catalog"."default" NOT NULL,
+  "passwordHash" varchar(255) COLLATE "pg_catalog"."default" NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of Customer
+-- ----------------------------
+INSERT INTO "public"."Customer" VALUES (1, 'TestName', '$2a$10$P5UEPm2Ze/GLK1joYXyyoej3w.XF7nJoN3u40npUryPWUqo.jL6Q6');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -70,6 +97,19 @@ CREATE TABLE "public"."StorageServerStatus" (
 -- ----------------------------
 INSERT INTO "public"."StorageServerStatus" VALUES (1, 'storage');
 INSERT INTO "public"."StorageServerStatus" VALUES (2, 'backup');
+
+-- ----------------------------
+-- Function structure for add_customer
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."add_customer"("customer_name" varchar, "customer_password_hash" varchar);
+CREATE OR REPLACE FUNCTION "public"."add_customer"("customer_name" varchar, "customer_password_hash" varchar)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	INSERT INTO "Customer" ("name", "passwordHash") VALUES ("customer_name", "customer_password_hash");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
 
 -- ----------------------------
 -- Function structure for add_storage_server
@@ -311,6 +351,20 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for get_customer
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_customer"("customer_name" varchar);
+CREATE OR REPLACE FUNCTION "public"."get_customer"("customer_name" varchar)
+  RETURNS SETOF "public"."Customer" AS $BODY$BEGIN
+
+	RETURN QUERY (SELECT * FROM "Customer" WHERE "name" = "customer_name");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_storage_server_status
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_storage_server_status"("status_name" varchar);
@@ -325,6 +379,26 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for is_customer_name_free
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."is_customer_name_free"("customer_name" varchar);
+CREATE OR REPLACE FUNCTION "public"."is_customer_name_free"("customer_name" varchar)
+  RETURNS "pg_catalog"."bool" AS $BODY$BEGIN
+
+	RETURN NOT EXISTS (SELECT * FROM "Customer" WHERE "name" = "customer_name");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."Customer_customerID_seq"
+OWNED BY "public"."Customer"."customerID";
+SELECT setval('"public"."Customer_customerID_seq"', 2, true);
+
+-- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."StorageServerStatus_storageServerStatusID_seq"
@@ -337,6 +411,16 @@ SELECT setval('"public"."StorageServerStatus_storageServerStatusID_seq"', 3, tru
 ALTER SEQUENCE "public"."StorageServer_storageServerID_seq"
 OWNED BY "public"."StorageServer"."storageServerID";
 SELECT setval('"public"."StorageServer_storageServerID_seq"', 3, true);
+
+-- ----------------------------
+-- Uniques structure for table Customer
+-- ----------------------------
+ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_name_key" UNIQUE ("name");
+
+-- ----------------------------
+-- Primary Key structure for table Customer
+-- ----------------------------
+ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_pkey" PRIMARY KEY ("customerID");
 
 -- ----------------------------
 -- Uniques structure for table StorageServer
