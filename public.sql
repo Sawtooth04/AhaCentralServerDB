@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 28/12/2023 17:21:29
+ Date: 28/12/2023 22:28:20
 */
 
 
@@ -372,6 +372,20 @@ CREATE OR REPLACE FUNCTION "public"."get_storage_server_status"("status_name" va
   RETURNS SETOF "public"."StorageServerStatus" AS $BODY$BEGIN
 
 	RETURN QUERY SELECT * FROM "StorageServerStatus" WHERE "name" = "status_name";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_storage_servers
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_storage_servers"();
+CREATE OR REPLACE FUNCTION "public"."get_storage_servers"()
+  RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
+
+	RETURN QUERY (SELECT * FROM "StorageServer");
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
