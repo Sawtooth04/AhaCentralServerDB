@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 28/12/2023 22:28:20
+ Date: 30/12/2023 00:06:33
 */
 
 
@@ -21,6 +21,17 @@
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."Customer_customerID_seq";
 CREATE SEQUENCE "public"."Customer_customerID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for File_fileID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."File_fileID_seq";
+CREATE SEQUENCE "public"."File_fileID_seq" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 2147483647
@@ -64,6 +75,25 @@ CREATE TABLE "public"."Customer" (
 -- Records of Customer
 -- ----------------------------
 INSERT INTO "public"."Customer" VALUES (1, 'TestName', '$2a$10$P5UEPm2Ze/GLK1joYXyyoej3w.XF7nJoN3u40npUryPWUqo.jL6Q6');
+
+-- ----------------------------
+-- Table structure for File
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."File";
+CREATE TABLE "public"."File" (
+  "fileID" int4 NOT NULL DEFAULT nextval('"File_fileID_seq"'::regclass),
+  "ownerID" int4 NOT NULL,
+  "name" varchar(135) COLLATE "pg_catalog"."default" NOT NULL,
+  "path" varchar(135) COLLATE "pg_catalog"."default" NOT NULL,
+  "uploadDate" timestamp(6) NOT NULL,
+  "updateDate" timestamp(6) NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of File
+-- ----------------------------
+INSERT INTO "public"."File" VALUES (2, 1, 'photo.png', '/', '2023-12-30 00:05:41.610148', '2023-12-30 00:05:41.610148');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -118,7 +148,7 @@ DROP FUNCTION IF EXISTS "public"."add_storage_server"("name" varchar, "address" 
 CREATE OR REPLACE FUNCTION "public"."add_storage_server"("name" varchar, "address" varchar, "status_id" int4)
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
-	INSERT INTO "StorageServer" ("name", "address", "storageServerStatusID") VALUES("name", "address", "status_id");
+	INSERT INTO "StorageServer" ("name", "address", "storageServerStatusID") VALUES ("name", "address", "status_id");
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -154,6 +184,7 @@ CREATE OR REPLACE FUNCTION "public"."create_chunk_table"()
 	CREATE TABLE IF NOT EXISTS "Chunk" (
 		"chunkID" SERIAL PRIMARY KEY,
 		"fileID" INT4 NOT NULL,
+		"size" INT4 NOT NULL,
 		"sequenceNumber" INT4 NOT NULL,
 		
 		FOREIGN KEY ("fileID") REFERENCES "File" ("fileID") ON UPDATE CASCADE ON DELETE CASCADE
@@ -226,11 +257,13 @@ CREATE OR REPLACE FUNCTION "public"."create_file_table"()
 	CREATE TABLE IF NOT EXISTS "File" (
 		"fileID" SERIAL PRIMARY KEY,
 		"ownerID" INT4 NOT NULL,
-		"path" VARCHAR(135) UNIQUE NOT NULL,
-		"uploadDate" TIMASTAMP NOT NULL,
-		"updateDate" TIMASTAMP NOT NULL,
+		"name" VARCHAR(135) NOT NULL,
+		"path" VARCHAR(135) NOT NULL,
+		"uploadDate" TIMESTAMP NOT NULL,
+		"updateDate" TIMESTAMP NOT NULL,
 		
-		FOREIGN KEY ("ownerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE
+		FOREIGN KEY ("ownerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE,
+		UNIQUE ("name", "path")
 	);
 	
 END$BODY$
@@ -406,11 +439,38 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for put_file
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."put_file"("file_owner" int4, "file_name" varchar, "file_path" varchar);
+CREATE OR REPLACE FUNCTION "public"."put_file"("file_owner" int4, "file_name" varchar, "file_path" varchar)
+  RETURNS "pg_catalog"."int4" AS $BODY$BEGIN
+
+	IF EXISTS (SELECT * FROM "File" WHERE "name" = "file_name" AND "path" = "file_path") THEN
+		UPDATE "File" SET "updateDate" = now() WHERE "name" = "file_name" AND "path" = "file_path";
+	ELSE
+		INSERT INTO "File" ("ownerID", "name", "path", "uploadDate", "updateDate")
+			VALUES ("file_owner", "file_name", "file_path", now(), now());
+	END IF;
+
+	RETURN (SELECT "fileID" FROM "File" WHERE "name" = "file_name" AND "path" = "file_path");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Customer_customerID_seq"
 OWNED BY "public"."Customer"."customerID";
 SELECT setval('"public"."Customer_customerID_seq"', 2, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."File_fileID_seq"
+OWNED BY "public"."File"."fileID";
+SELECT setval('"public"."File_fileID_seq"', 3, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -437,6 +497,16 @@ ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_name_key" UNIQUE ("name
 ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_pkey" PRIMARY KEY ("customerID");
 
 -- ----------------------------
+-- Uniques structure for table File
+-- ----------------------------
+ALTER TABLE "public"."File" ADD CONSTRAINT "File_name_path_key" UNIQUE ("name", "path");
+
+-- ----------------------------
+-- Primary Key structure for table File
+-- ----------------------------
+ALTER TABLE "public"."File" ADD CONSTRAINT "File_pkey" PRIMARY KEY ("fileID");
+
+-- ----------------------------
 -- Uniques structure for table StorageServer
 -- ----------------------------
 ALTER TABLE "public"."StorageServer" ADD CONSTRAINT "StorageServer_name_key" UNIQUE ("name");
@@ -456,6 +526,11 @@ ALTER TABLE "public"."StorageServerStatus" ADD CONSTRAINT "StorageServerStatus_n
 -- Primary Key structure for table StorageServerStatus
 -- ----------------------------
 ALTER TABLE "public"."StorageServerStatus" ADD CONSTRAINT "StorageServerStatus_pkey" PRIMARY KEY ("storageServerStatusID");
+
+-- ----------------------------
+-- Foreign Keys structure for table File
+-- ----------------------------
+ALTER TABLE "public"."File" ADD CONSTRAINT "File_ownerID_fkey" FOREIGN KEY ("ownerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
 -- Foreign Keys structure for table StorageServer
