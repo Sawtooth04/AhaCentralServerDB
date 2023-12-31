@@ -12,9 +12,20 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 30/12/2023 00:06:33
+ Date: 31/12/2023 21:26:27
 */
 
+
+-- ----------------------------
+-- Sequence structure for Chunk_chunkID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."Chunk_chunkID_seq";
+CREATE SEQUENCE "public"."Chunk_chunkID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
 
 -- ----------------------------
 -- Sequence structure for Customer_customerID_seq
@@ -61,6 +72,25 @@ START 1
 CACHE 1;
 
 -- ----------------------------
+-- Table structure for Chunk
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."Chunk";
+CREATE TABLE "public"."Chunk" (
+  "chunkID" int4 NOT NULL DEFAULT nextval('"Chunk_chunkID_seq"'::regclass),
+  "fileID" int4 NOT NULL,
+  "name" varchar(135) COLLATE "pg_catalog"."default" NOT NULL,
+  "size" int4 NOT NULL,
+  "sequenceNumber" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of Chunk
+-- ----------------------------
+INSERT INTO "public"."Chunk" VALUES (3, 3, 'mL0sTHzS2eN0tqlXd91s01dIrwm0XgELfQKyZOb0vqA=', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (4, 3, 'Pm9mzp3IrU7mqQSXi6tn5dv3e6Ia0bLYb+l0QAZpo=', 460733, 1);
+
+-- ----------------------------
 -- Table structure for Customer
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."Customer";
@@ -93,7 +123,7 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
-INSERT INTO "public"."File" VALUES (2, 1, 'photo.png', '/', '2023-12-30 00:05:41.610148', '2023-12-30 00:05:41.610148');
+INSERT INTO "public"."File" VALUES (3, 1, 'photo.png', '/', '2023-12-30 18:02:24.635572', '2023-12-30 18:02:24.635572');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -184,6 +214,7 @@ CREATE OR REPLACE FUNCTION "public"."create_chunk_table"()
 	CREATE TABLE IF NOT EXISTS "Chunk" (
 		"chunkID" SERIAL PRIMARY KEY,
 		"fileID" INT4 NOT NULL,
+		"name" VARCHAR(135) NOT NULL,
 		"size" INT4 NOT NULL,
 		"sequenceNumber" INT4 NOT NULL,
 		
@@ -439,6 +470,24 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for put_chunk
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."put_chunk"("chunk_file_id" int4, "chunk_name" varchar, "chunk_size" int4, "chunk_sequence_number" int4);
+CREATE OR REPLACE FUNCTION "public"."put_chunk"("chunk_file_id" int4, "chunk_name" varchar, "chunk_size" int4, "chunk_sequence_number" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	IF EXISTS (SELECT * FROM "Chunk" WHERE "fileID" = "chunk_file_id" AND "sequenceNumber" = "chunk_sequence_number") THEN
+		UPDATE "Chunk" SET "size" = "chunk_size", "name" = "chunk_name" WHERE "fileID" = "chunk_file_id" AND "sequenceNumber" = "chunk_sequence_number";
+	ELSE
+		INSERT INTO "Chunk" ("fileID", "name", "size", "sequenceNumber")
+			VALUES ("chunk_file_id", "chunk_name", "chunk_size", chunk_sequence_number);
+	END IF;
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for put_file
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."put_file"("file_owner" int4, "file_name" varchar, "file_path" varchar);
@@ -461,6 +510,13 @@ END$BODY$
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
+ALTER SEQUENCE "public"."Chunk_chunkID_seq"
+OWNED BY "public"."Chunk"."chunkID";
+SELECT setval('"public"."Chunk_chunkID_seq"', 5, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
 ALTER SEQUENCE "public"."Customer_customerID_seq"
 OWNED BY "public"."Customer"."customerID";
 SELECT setval('"public"."Customer_customerID_seq"', 2, true);
@@ -470,7 +526,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 3, true);
+SELECT setval('"public"."File_fileID_seq"', 4, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -485,6 +541,11 @@ SELECT setval('"public"."StorageServerStatus_storageServerStatusID_seq"', 3, tru
 ALTER SEQUENCE "public"."StorageServer_storageServerID_seq"
 OWNED BY "public"."StorageServer"."storageServerID";
 SELECT setval('"public"."StorageServer_storageServerID_seq"', 3, true);
+
+-- ----------------------------
+-- Primary Key structure for table Chunk
+-- ----------------------------
+ALTER TABLE "public"."Chunk" ADD CONSTRAINT "Chunk_pkey" PRIMARY KEY ("chunkID");
 
 -- ----------------------------
 -- Uniques structure for table Customer
@@ -526,6 +587,11 @@ ALTER TABLE "public"."StorageServerStatus" ADD CONSTRAINT "StorageServerStatus_n
 -- Primary Key structure for table StorageServerStatus
 -- ----------------------------
 ALTER TABLE "public"."StorageServerStatus" ADD CONSTRAINT "StorageServerStatus_pkey" PRIMARY KEY ("storageServerStatusID");
+
+-- ----------------------------
+-- Foreign Keys structure for table Chunk
+-- ----------------------------
+ALTER TABLE "public"."Chunk" ADD CONSTRAINT "Chunk_fileID_fkey" FOREIGN KEY ("fileID") REFERENCES "public"."File" ("fileID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
 -- Foreign Keys structure for table File
