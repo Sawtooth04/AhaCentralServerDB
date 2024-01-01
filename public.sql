@@ -12,9 +12,20 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 31/12/2023 21:26:27
+ Date: 01/01/2024 23:17:32
 */
 
+
+-- ----------------------------
+-- Sequence structure for ChunkStorageServer_chunkStorageServerID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."ChunkStorageServer_chunkStorageServerID_seq";
+CREATE SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
 
 -- ----------------------------
 -- Sequence structure for Chunk_chunkID_seq
@@ -87,8 +98,25 @@ CREATE TABLE "public"."Chunk" (
 -- ----------------------------
 -- Records of Chunk
 -- ----------------------------
-INSERT INTO "public"."Chunk" VALUES (3, 3, 'mL0sTHzS2eN0tqlXd91s01dIrwm0XgELfQKyZOb0vqA=', 524288, 0);
-INSERT INTO "public"."Chunk" VALUES (4, 3, 'Pm9mzp3IrU7mqQSXi6tn5dv3e6Ia0bLYb+l0QAZpo=', 460733, 1);
+INSERT INTO "public"."Chunk" VALUES (7, 8, '-104-674476124-46-39-29116-74-8787119-35108-458772-819-76941111252-78100-26-12-66-96', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (8, 8, '62111102-50-99-56-8378-26-874-105-117-85103-27-37-9123-946310770-5397-65-91-47025-89-6', 460733, 1);
+
+-- ----------------------------
+-- Table structure for ChunkStorageServer
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."ChunkStorageServer";
+CREATE TABLE "public"."ChunkStorageServer" (
+  "chunkStorageServerID" int4 NOT NULL DEFAULT nextval('"ChunkStorageServer_chunkStorageServerID_seq"'::regclass),
+  "chunkID" int4 NOT NULL,
+  "storageServerID" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of ChunkStorageServer
+-- ----------------------------
+INSERT INTO "public"."ChunkStorageServer" VALUES (3, 7, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (4, 8, 2);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -123,7 +151,7 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
-INSERT INTO "public"."File" VALUES (3, 1, 'photo.png', '/', '2023-12-30 18:02:24.635572', '2023-12-30 18:02:24.635572');
+INSERT INTO "public"."File" VALUES (8, 1, 'photo.png', '/', '2024-01-01 21:51:33.545541', '2024-01-01 21:51:33.545541');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -159,6 +187,19 @@ INSERT INTO "public"."StorageServerStatus" VALUES (1, 'storage');
 INSERT INTO "public"."StorageServerStatus" VALUES (2, 'backup');
 
 -- ----------------------------
+-- Function structure for add_chunk_storage_server
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."add_chunk_storage_server"("chunk_id" int4, "storage_server_id" int4);
+CREATE OR REPLACE FUNCTION "public"."add_chunk_storage_server"("chunk_id" int4, "storage_server_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+
+	INSERT INTO "ChunkStorageServer" ("chunkID", "storageServerID") VALUES ("chunk_id", "storage_server_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for add_customer
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."add_customer"("customer_name" varchar, "customer_password_hash" varchar);
@@ -192,9 +233,9 @@ CREATE OR REPLACE FUNCTION "public"."create_chunk_storage_server_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "ChunkStorageServer" (
-		"chunkStorageServerID" SERIAL PRIMARY KEY,
-		"chunkID" INT4 NOT NULL,
-		"storageServerID" INT4 NOT NULL,
+		"chunkStorageServerID" serial PRIMARY KEY,
+		"chunkID" int4 NOT NULL,
+		"storageServerID" int4 NOT NULL,
 		
 		FOREIGN KEY ("chunkID") REFERENCES "Chunk" ("chunkID") ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY ("storageServerID") REFERENCES "StorageServer" ("storageServerID") ON UPDATE CASCADE ON DELETE CASCADE
@@ -212,11 +253,11 @@ CREATE OR REPLACE FUNCTION "public"."create_chunk_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "Chunk" (
-		"chunkID" SERIAL PRIMARY KEY,
-		"fileID" INT4 NOT NULL,
-		"name" VARCHAR(135) NOT NULL,
-		"size" INT4 NOT NULL,
-		"sequenceNumber" INT4 NOT NULL,
+		"chunkID" serial PRIMARY KEY,
+		"fileID" int4 NOT NULL,
+		"name" varchar(135) NOT NULL,
+		"size" int4 NOT NULL,
+		"sequenceNumber" int4 NOT NULL,
 		
 		FOREIGN KEY ("fileID") REFERENCES "File" ("fileID") ON UPDATE CASCADE ON DELETE CASCADE
 	);
@@ -233,9 +274,9 @@ CREATE OR REPLACE FUNCTION "public"."create_customer_role_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "CustomerRole" (
-		"customerRoleID" SERIAL PRIMARY KEY,
-		"customerID" INT4 NOT NULL,
-		"roleID" INT4 NOT NULL,
+		"customerRoleID" serial PRIMARY KEY,
+		"customerID" int4 NOT NULL,
+		"roleID" int4 NOT NULL,
 	
 		FOREIGN KEY ("сustomerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY ("roleID") REFERENCES "Role" ("roleID") ON UPDATE CASCADE ON DELETE CASCADE
@@ -253,9 +294,9 @@ CREATE OR REPLACE FUNCTION "public"."create_customer_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "Customer" (
-		"customerID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL,
-		"passwordHash" VARCHAR(255) NOT NULL
+		"customerID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL,
+		"passwordHash" varchar(255) NOT NULL
 	);
 	
 END$BODY$
@@ -270,8 +311,8 @@ CREATE OR REPLACE FUNCTION "public"."create_file_right_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "FileRight" (
-		"fileRightID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL
+		"fileRightID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL
 	);
 	
 END$BODY$
@@ -286,12 +327,12 @@ CREATE OR REPLACE FUNCTION "public"."create_file_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "File" (
-		"fileID" SERIAL PRIMARY KEY,
-		"ownerID" INT4 NOT NULL,
-		"name" VARCHAR(135) NOT NULL,
-		"path" VARCHAR(135) NOT NULL,
-		"uploadDate" TIMESTAMP NOT NULL,
-		"updateDate" TIMESTAMP NOT NULL,
+		"fileID" serial PRIMARY KEY,
+		"ownerID" int4 NOT NULL,
+		"name" varchar(135) NOT NULL,
+		"path" varchar(135) NOT NULL,
+		"uploadDate" timestamp NOT NULL,
+		"updateDate" timestamp NOT NULL,
 		
 		FOREIGN KEY ("ownerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE,
 		UNIQUE ("name", "path")
@@ -309,10 +350,10 @@ CREATE OR REPLACE FUNCTION "public"."create_group_file_right_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "GroupFileRight" (
-		"groupFileRightID" SERIAL PRIMARY KEY,
-		"fileID" INT4 NOT NULL,
-		"groupID" INT4 NOT NULL,
-		"fileRightID" INT4 NOT NULL,
+		"groupFileRightID" serial PRIMARY KEY,
+		"fileID" int4 NOT NULL,
+		"groupID" int4 NOT NULL,
+		"fileRightID" int4 NOT NULL,
 		
 		FOREIGN KEY ("fileID") REFERENCES "File" ("fileID") ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY ("groupID") REFERENCES "Group" ("groupID") ON UPDATE CASCADE ON DELETE CASCADE,
@@ -331,8 +372,8 @@ CREATE OR REPLACE FUNCTION "public"."create_group_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "Group" (
-		"groupID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL
+		"groupID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL
 	);
 	
 END$BODY$
@@ -347,8 +388,8 @@ CREATE OR REPLACE FUNCTION "public"."create_role_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "Role" (
-		"roleID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL
+		"roleID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL
 	);
 	
 END$BODY$
@@ -363,8 +404,8 @@ CREATE OR REPLACE FUNCTION "public"."create_storage_server_status_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "StorageServerStatus" (
-		"storageServerStatusID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL
+		"storageServerStatusID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL
 	);
 	
 	INSERT INTO "StorageServerStatus" ("name") VALUES ('storage');
@@ -382,10 +423,10 @@ CREATE OR REPLACE FUNCTION "public"."create_storage_server_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "StorageServer" (
-		"storageServerID" SERIAL PRIMARY KEY,
-		"name" VARCHAR(35) UNIQUE NOT NULL,
-		"address" VARCHAR(35) UNIQUE NOT NULL,
-		"storageServerStatusID" INT4 NOT NULL,
+		"storageServerID" serial PRIMARY KEY,
+		"name" varchar(35) UNIQUE NOT NULL,
+		"address" varchar(35) UNIQUE NOT NULL,
+		"storageServerStatusID" int4 NOT NULL,
 		
 		FOREIGN KEY ("storageServerStatusID") REFERENCES "StorageServerStatus" ("storageServerStatusID") ON UPDATE CASCADE ON DELETE CASCADE
 	);
@@ -402,9 +443,9 @@ CREATE OR REPLACE FUNCTION "public"."create_user_group_table"()
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	CREATE TABLE IF NOT EXISTS "CustomerGroup" (
-		"customerGroupID" SERIAL PRIMARY KEY,
-		"groupID" INT4 NOT NULL,
-		"customerID" INT4 NOT NULL,
+		"customerGroupID" serial PRIMARY KEY,
+		"groupID" int4 NOT NULL,
+		"customerID" int4 NOT NULL,
 		
 		FOREIGN KEY ("groupID") REFERENCES "Group" ("groupID") ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY ("customerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE
@@ -415,6 +456,20 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for get_chunk_storage_server
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_chunk_storage_server"("chunk_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_chunk_storage_server"("chunk_id" int4)
+  RETURNS SETOF "public"."ChunkStorageServer" AS $BODY$BEGIN
+
+	RETURN QUERY (SELECT * FROM "ChunkStorageServer" WHERE "chunkID" = "chunk_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_customer
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_customer"("customer_name" varchar);
@@ -422,6 +477,34 @@ CREATE OR REPLACE FUNCTION "public"."get_customer"("customer_name" varchar)
   RETURNS SETOF "public"."Customer" AS $BODY$BEGIN
 
 	RETURN QUERY (SELECT * FROM "Customer" WHERE "name" = "customer_name");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_file
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_file"("file_path" varchar, "file_name" varchar);
+CREATE OR REPLACE FUNCTION "public"."get_file"("file_path" varchar, "file_name" varchar)
+  RETURNS SETOF "public"."File" AS $BODY$BEGIN
+
+	RETURN QUERY (SELECT * FROM "File" WHERE "path" = "file_path" AND "name" = "file_name");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_file_chunks
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_file_chunks"("file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_file_chunks"("file_id" int4)
+  RETURNS SETOF "public"."Chunk" AS $BODY$BEGIN
+
+	RETURN QUERY (SELECT * FROM "Chunk" WHERE "fileID" = "file_id" ORDER BY "sequenceNumber" ASC);
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -457,6 +540,24 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_storage_servers_by_chunk
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_storage_servers_by_chunk"("chunk_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_storage_servers_by_chunk"("chunk_id" int4)
+  RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
+
+	RETURN QUERY (
+		SELECT ss."storageServerID", ss."name", ss."address", ss."storageServerStatusID" FROM "ChunkStorageServer" AS css
+			LEFT JOIN "StorageServer" AS ss ON ss."storageServerID" = css."storageServerID"
+			WHERE css."chunkID" = "chunk_id"
+	);
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for is_customer_name_free
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."is_customer_name_free"("customer_name" varchar);
@@ -474,14 +575,20 @@ END$BODY$
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."put_chunk"("chunk_file_id" int4, "chunk_name" varchar, "chunk_size" int4, "chunk_sequence_number" int4);
 CREATE OR REPLACE FUNCTION "public"."put_chunk"("chunk_file_id" int4, "chunk_name" varchar, "chunk_size" int4, "chunk_sequence_number" int4)
-  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+  RETURNS "pg_catalog"."int4" AS $BODY$
+	DECLARE
+		"resultID" int4;
+	
+	BEGIN
 	
 	IF EXISTS (SELECT * FROM "Chunk" WHERE "fileID" = "chunk_file_id" AND "sequenceNumber" = "chunk_sequence_number") THEN
-		UPDATE "Chunk" SET "size" = "chunk_size", "name" = "chunk_name" WHERE "fileID" = "chunk_file_id" AND "sequenceNumber" = "chunk_sequence_number";
+		UPDATE "Chunk" SET "size" = "chunk_size", "name" = "chunk_name" WHERE "fileID" = "chunk_file_id" AND "sequenceNumber" = "chunk_sequence_number" RETURNING "chunkID" INTO "resultID";
 	ELSE
 		INSERT INTO "Chunk" ("fileID", "name", "size", "sequenceNumber")
-			VALUES ("chunk_file_id", "chunk_name", "chunk_size", chunk_sequence_number);
+			VALUES ("chunk_file_id", "chunk_name", "chunk_size", chunk_sequence_number) RETURNING "chunkID" INTO "resultID";
 	END IF;
+	
+	RETURN "resultID";
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -492,17 +599,20 @@ END$BODY$
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."put_file"("file_owner" int4, "file_name" varchar, "file_path" varchar);
 CREATE OR REPLACE FUNCTION "public"."put_file"("file_owner" int4, "file_name" varchar, "file_path" varchar)
-  RETURNS "pg_catalog"."int4" AS $BODY$BEGIN
+  RETURNS "pg_catalog"."int4" AS $BODY$
+	DECLARE
+		"resultID" INT4;
+	
+	BEGIN
 
 	IF EXISTS (SELECT * FROM "File" WHERE "name" = "file_name" AND "path" = "file_path") THEN
-		UPDATE "File" SET "updateDate" = now() WHERE "name" = "file_name" AND "path" = "file_path";
+		UPDATE "File" SET "updateDate" = now() WHERE "name" = "file_name" AND "path" = "file_path" RETURNING "fileID" INTO "resultID";
 	ELSE
 		INSERT INTO "File" ("ownerID", "name", "path", "uploadDate", "updateDate")
-			VALUES ("file_owner", "file_name", "file_path", now(), now());
+			VALUES ("file_owner", "file_name", "file_path", now(), now()) RETURNING "fileID" INTO "resultID";
 	END IF;
-
-	RETURN (SELECT "fileID" FROM "File" WHERE "name" = "file_name" AND "path" = "file_path");
 	
+	RETURN "resultID";
 END$BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
@@ -510,9 +620,16 @@ END$BODY$
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
+ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
+OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 5, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 5, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 9, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -526,7 +643,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 4, true);
+SELECT setval('"public"."File_fileID_seq"', 9, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -546,6 +663,11 @@ SELECT setval('"public"."StorageServer_storageServerID_seq"', 3, true);
 -- Primary Key structure for table Chunk
 -- ----------------------------
 ALTER TABLE "public"."Chunk" ADD CONSTRAINT "Chunk_pkey" PRIMARY KEY ("chunkID");
+
+-- ----------------------------
+-- Primary Key structure for table ChunkStorageServer
+-- ----------------------------
+ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_pkey" PRIMARY KEY ("chunkStorageServerID");
 
 -- ----------------------------
 -- Uniques structure for table Customer
@@ -592,6 +714,12 @@ ALTER TABLE "public"."StorageServerStatus" ADD CONSTRAINT "StorageServerStatus_p
 -- Foreign Keys structure for table Chunk
 -- ----------------------------
 ALTER TABLE "public"."Chunk" ADD CONSTRAINT "Chunk_fileID_fkey" FOREIGN KEY ("fileID") REFERENCES "public"."File" ("fileID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ----------------------------
+-- Foreign Keys structure for table ChunkStorageServer
+-- ----------------------------
+ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_chunkID_fkey" FOREIGN KEY ("chunkID") REFERENCES "public"."Chunk" ("chunkID") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_storageServerID_fkey" FOREIGN KEY ("storageServerID") REFERENCES "public"."StorageServer" ("storageServerID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
 -- Foreign Keys structure for table File
