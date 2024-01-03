@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 01/01/2024 23:17:32
+ Date: 03/01/2024 22:57:37
 */
 
 
@@ -100,6 +100,8 @@ CREATE TABLE "public"."Chunk" (
 -- ----------------------------
 INSERT INTO "public"."Chunk" VALUES (7, 8, '-104-674476124-46-39-29116-74-8787119-35108-458772-819-76941111252-78100-26-12-66-96', 524288, 0);
 INSERT INTO "public"."Chunk" VALUES (8, 8, '62111102-50-99-56-8378-26-874-105-117-85103-27-37-9123-946310770-5397-65-91-47025-89-6', 460733, 1);
+INSERT INTO "public"."Chunk" VALUES (9, 9, '-64-87-45-47-5-143413-121-39-118105481179-48-30-36122-455311114-73-1787-9539-12011653-78', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (10, 9, '-99-1795-89-81950141987-894310-95-6092-1215-1205-68-44-82-41-1596-52-33-10105-92104', 44986, 1);
 
 -- ----------------------------
 -- Table structure for ChunkStorageServer
@@ -117,6 +119,12 @@ CREATE TABLE "public"."ChunkStorageServer" (
 -- ----------------------------
 INSERT INTO "public"."ChunkStorageServer" VALUES (3, 7, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (4, 8, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (5, 9, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (6, 10, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (7, 9, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (8, 10, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (9, 9, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (10, 10, 2);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -152,6 +160,8 @@ CREATE TABLE "public"."File" (
 -- Records of File
 -- ----------------------------
 INSERT INTO "public"."File" VALUES (8, 1, 'photo.png', '/', '2024-01-01 21:51:33.545541', '2024-01-01 21:51:33.545541');
+INSERT INTO "public"."File" VALUES (9, 1, 'nashli-shokala.png', '/', '2024-01-02 15:02:34.841281', '2024-01-02 22:40:58.656707');
+INSERT INTO "public"."File" VALUES (15, 1, 'test.cpvd', '/', '2024-01-03 22:52:13.55949', '2024-01-03 22:52:13.55949');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -456,6 +466,32 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for delete_chunk
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."delete_chunk"("chunk_id" int4);
+CREATE OR REPLACE FUNCTION "public"."delete_chunk"("chunk_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	DELETE FROM "Chunk" WHERE "chunkID" = "chunk_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for delete_file
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."delete_file"("file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."delete_file"("file_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	DELETE FROM "File" WHERE "fileID" = "file_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for get_chunk_storage_server
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_chunk_storage_server"("chunk_id" int4);
@@ -504,7 +540,7 @@ DROP FUNCTION IF EXISTS "public"."get_file_chunks"("file_id" int4);
 CREATE OR REPLACE FUNCTION "public"."get_file_chunks"("file_id" int4)
   RETURNS SETOF "public"."Chunk" AS $BODY$BEGIN
 
-	RETURN QUERY (SELECT * FROM "Chunk" WHERE "fileID" = "file_id" ORDER BY "sequenceNumber" ASC);
+	RETURN QUERY SELECT * FROM "Chunk" WHERE "fileID" = "file_id" ORDER BY "sequenceNumber" ASC;
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -622,14 +658,14 @@ END$BODY$
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 5, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 71, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 9, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 71, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -643,7 +679,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 9, true);
+SELECT setval('"public"."File_fileID_seq"', 16, true);
 
 -- ----------------------------
 -- Alter sequences owned by
