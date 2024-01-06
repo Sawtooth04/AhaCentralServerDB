@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 04/01/2024 22:14:23
+ Date: 06/01/2024 20:47:49
 */
 
 
@@ -98,6 +98,16 @@ CREATE TABLE "public"."Chunk" (
 -- ----------------------------
 -- Records of Chunk
 -- ----------------------------
+INSERT INTO "public"."Chunk" VALUES (141, 22, '1577-12-18-1661-4187-5893-117-86-1886-64-31-537662123-58-120115106404946-117-78-120-79115', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (142, 22, '118-68828846120-26-86-106-87819-147450-58-11019-6914-66267-5-113-12505597-20-60-8', 524288, 1);
+INSERT INTO "public"."Chunk" VALUES (143, 22, '1712688460-38110111-107-79108-75-19426102-1113126-51-993313-4274124-7679-11814-700', 524288, 2);
+INSERT INTO "public"."Chunk" VALUES (144, 22, '2949-120-13-25-24-62-10052614019-6923-15-28-44-456880127-41-36-4583495254-10765-73102', 524288, 3);
+INSERT INTO "public"."Chunk" VALUES (145, 22, '-276468580-108-60110103-37112-57-7952-9931-29-9-95-100-46-46-43103-48112-1094482-31-8583', 524288, 4);
+INSERT INTO "public"."Chunk" VALUES (146, 22, '8-3-9195-8032-86116-62-86127771555-808614-58-913086921-11334932119-5428-81-99', 524288, 5);
+INSERT INTO "public"."Chunk" VALUES (147, 22, '32596153-1290-7505017275346-47-511211875-13-10-3934-2885-73-12845-73221442-125', 524288, 6);
+INSERT INTO "public"."Chunk" VALUES (148, 22, '-124-54-60-127-65-8533-25-299072115-5769-114-98-123-204812258-3668-3172-115-113168264394', 524288, 7);
+INSERT INTO "public"."Chunk" VALUES (149, 22, '-3932-76-57-125-481162473-124-53106-207-1272152-112115-2812710-74-91-7894-100-38-5134-82-74', 524288, 8);
+INSERT INTO "public"."Chunk" VALUES (150, 22, '3718-26-44-38-85-65164-16019122-50-15-102-11127780-7554-43-128-9061-593212429-70', 524288, 9);
 
 -- ----------------------------
 -- Table structure for ChunkStorageServer
@@ -113,6 +123,38 @@ CREATE TABLE "public"."ChunkStorageServer" (
 -- ----------------------------
 -- Records of ChunkStorageServer
 -- ----------------------------
+INSERT INTO "public"."ChunkStorageServer" VALUES (154, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (155, 141, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (156, 142, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (157, 142, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (158, 143, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (159, 143, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (160, 144, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (161, 144, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (162, 145, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (163, 145, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (164, 146, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (165, 146, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (166, 147, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (167, 147, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (168, 148, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (169, 148, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (170, 149, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (171, 149, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (172, 150, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (173, 150, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (174, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (175, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (176, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (178, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (179, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (181, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (182, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (184, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (185, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (187, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (188, 141, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (190, 141, 2);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -147,7 +189,7 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
-INSERT INTO "public"."File" VALUES (20, 1, 'test.cpvd', '/', '2024-01-04 20:49:32.652672', '2024-01-04 20:49:32.652672');
+INSERT INTO "public"."File" VALUES (22, 1, 'test.cpvd', '/', '2024-01-06 14:33:27.948333', '2024-01-06 14:33:27.948333');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -166,7 +208,7 @@ CREATE TABLE "public"."StorageServer" (
 -- ----------------------------
 INSERT INTO "public"."StorageServer" VALUES (4, 'petr-server', 'http://192.168.1.103:8090', 1);
 INSERT INTO "public"."StorageServer" VALUES (2, 'test-server', 'http://127.0.0.1:8090', 1);
-INSERT INTO "public"."StorageServer" VALUES (6, 'test-server-1', 'http://127.0.0.1:8091', 1);
+INSERT INTO "public"."StorageServer" VALUES (6, 'test-server-1', 'http://127.0.0.1:8091', 2);
 
 -- ----------------------------
 -- Table structure for StorageServerStatus
@@ -480,6 +522,21 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for get_backup_servers
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_backup_servers"();
+CREATE OR REPLACE FUNCTION "public"."get_backup_servers"()
+  RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT * FROM "StorageServer" WHERE "storageServerStatusID" IN
+		(SELECT "storageServerStatusID" FROM "StorageServerStatus" WHERE "name" = 'backup');
+		
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_chunk_by_name
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_chunk_by_name"("chunk_name" varchar);
@@ -584,7 +641,8 @@ DROP FUNCTION IF EXISTS "public"."get_storage_servers"();
 CREATE OR REPLACE FUNCTION "public"."get_storage_servers"()
   RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
 
-	RETURN QUERY (SELECT * FROM "StorageServer");
+	RETURN QUERY SELECT * FROM "StorageServer" WHERE "storageServerStatusID" IN
+		(SELECT "storageServerStatusID" FROM "StorageServerStatus" WHERE "name" = 'storage');
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -674,14 +732,14 @@ END$BODY$
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 124, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 191, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 121, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 156, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -695,7 +753,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 21, true);
+SELECT setval('"public"."File_fileID_seq"', 23, true);
 
 -- ----------------------------
 -- Alter sequences owned by
