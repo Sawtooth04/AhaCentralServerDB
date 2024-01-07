@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 06/01/2024 20:47:49
+ Date: 07/01/2024 16:22:59
 */
 
 
@@ -143,18 +143,6 @@ INSERT INTO "public"."ChunkStorageServer" VALUES (170, 149, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (171, 149, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (172, 150, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (173, 150, 6);
-INSERT INTO "public"."ChunkStorageServer" VALUES (174, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (175, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (176, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (178, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (179, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (181, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (182, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (184, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (185, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (187, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (188, 141, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (190, 141, 2);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -565,6 +553,23 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_chunks_of_storage_server
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_chunks_of_storage_server"("storage_server_id" int4, "start" int4, "count" int4);
+CREATE OR REPLACE FUNCTION "public"."get_chunks_of_storage_server"("storage_server_id" int4, "start" int4, "count" int4)
+  RETURNS SETOF "public"."Chunk" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT c."chunkID", c."fileID", c."name", c."size", c."sequenceNumber" FROM "ChunkStorageServer" AS css
+		LEFT JOIN "Chunk" AS c ON c."chunkID" = css."chunkID"
+		WHERE css."storageServerID" = "storage_server_id"
+		ORDER BY c."chunkID" OFFSET "start" LIMIT "count";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_customer
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_customer"("customer_name" varchar);
@@ -614,6 +619,20 @@ CREATE OR REPLACE FUNCTION "public"."get_storage_server"("server_address" varcha
   RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
 
 	RETURN QUERY SELECT * FROM "StorageServer" WHERE "address" LIKE '%://' || "server_address";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_storage_server_by_id
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_storage_server_by_id"("storage_server_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_storage_server_by_id"("storage_server_id" int4)
+  RETURNS SETOF "public"."StorageServer" AS $BODY$BEGIN
+	
+	RETURN QUERY SELECT * FROM "StorageServer" WHERE "storageServerID" = "storage_server_id";
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -732,14 +751,14 @@ END$BODY$
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 191, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 193, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 156, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 157, true);
 
 -- ----------------------------
 -- Alter sequences owned by
