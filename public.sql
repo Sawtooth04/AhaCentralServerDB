@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 16/01/2024 19:48:28
+ Date: 17/01/2024 19:17:52
 */
 
 
@@ -178,8 +178,9 @@ CREATE TABLE "public"."File" (
 -- Records of File
 -- ----------------------------
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
-INSERT INTO "public"."File" VALUES (25, 1, 'abcde', '/test', '2024-01-16 15:34:05', '2024-01-16 15:34:10');
 INSERT INTO "public"."File" VALUES (26, 1, 'sgfdsg', '/abcde/test', '2024-01-16 15:43:05', '2024-01-16 15:43:07');
+INSERT INTO "public"."File" VALUES (25, 1, 'abcd', '/abcde', '2024-01-16 15:34:05', '2024-01-16 15:34:10');
+INSERT INTO "public"."File" VALUES (28, 1, 'ghjgfhjk', '/abcde/test/nested', '2024-01-17 12:54:18', '2024-01-17 12:54:20');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -632,8 +633,15 @@ DROP FUNCTION IF EXISTS "public"."get_directories"("directory" varchar);
 CREATE OR REPLACE FUNCTION "public"."get_directories"("directory" varchar)
   RETURNS TABLE("name" text) AS $BODY$BEGIN
 	
-	RETURN QUERY SELECT regexp_replace(substring(f."path", 2), '/.*', '')
-		FROM "File" AS f WHERE f."path" != "directory" AND f."path" ~* (directory || 	'[^/.]*');
+	IF "directory" = '/' THEN
+		RETURN QUERY SELECT substring(f."path", 2) AS "directory_name"
+			FROM "File" AS f WHERE f."path" != "directory" AND f."path" ~* ('^(' || directory || ')[^/]+$')
+			GROUP BY "directory_name";
+	ELSE
+		RETURN QUERY SELECT regexp_replace(f."path", '/.*/', '') AS "directory_name"
+			FROM "File" AS f WHERE f."path" != "directory" AND f."path" ~* ('^(' || directory || '/)[^/]+$')
+			GROUP BY "directory_name";
+	END IF;
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -688,9 +696,13 @@ DROP FUNCTION IF EXISTS "public"."get_file_size"("file_id" int4);
 CREATE OR REPLACE FUNCTION "public"."get_file_size"("file_id" int4)
   RETURNS "pg_catalog"."int8" AS $BODY$BEGIN
 	
-	RETURN (SELECT SUM(size) FROM "Chunk"
-		WHERE "fileID" = "file_id"
-		GROUP BY "fileID");
+	IF EXISTS (SELECT * FROM "Chunk" WHERE "fileID" = "file_id") THEN
+		RETURN (SELECT SUM(size) FROM "Chunk"
+			WHERE "fileID" = "file_id"
+			GROUP BY "fileID");
+	ELSE
+		RETURN 0;
+	END IF;
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -886,7 +898,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 27, true);
+SELECT setval('"public"."File_fileID_seq"', 29, true);
 
 -- ----------------------------
 -- Alter sequences owned by
