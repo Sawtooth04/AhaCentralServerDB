@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 17/01/2024 19:17:52
+ Date: 20/01/2024 18:03:15
 */
 
 
@@ -108,6 +108,10 @@ INSERT INTO "public"."Chunk" VALUES (163, 23, '32596153-1290-7505017275346-47-51
 INSERT INTO "public"."Chunk" VALUES (164, 23, '-124-54-60-127-65-8533-25-299072115-5769-114-98-123-204812258-3668-3172-115-113168264394', 524288, 7);
 INSERT INTO "public"."Chunk" VALUES (165, 23, '-3932-76-57-125-481162473-124-53106-207-1272152-112115-2812710-74-91-7894-100-38-5134-82-74', 524288, 8);
 INSERT INTO "public"."Chunk" VALUES (166, 23, '3718-26-44-38-85-65164-16019122-50-15-102-11127780-7554-43-128-9061-593212429-70', 524288, 9);
+INSERT INTO "public"."Chunk" VALUES (172, 23, '108-64-99-104311987105-116-66-74107-64-49-21-1191068-61735978-1141168693-6111890-39124', 170560, 10);
+INSERT INTO "public"."Chunk" VALUES (211, 39, '98-16-96-66-70-3099286-35-15-7874-3934199424-1175121109-204-13-436-413372-3183', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (212, 41, '-123-952556-2279112-1043919-1049325-68-124-120-428811563-119-133649-4085-118103420-12796', 524288, 0);
+INSERT INTO "public"."Chunk" VALUES (213, 41, '-30-75-50-10114-87-54-581214-121-6390-6411010397-1679-8359-9073-109-132-10612393-451718', 44986, 1);
 
 -- ----------------------------
 -- Table structure for ChunkStorageServer
@@ -143,6 +147,13 @@ INSERT INTO "public"."ChunkStorageServer" VALUES (209, 165, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (210, 165, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (211, 166, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (212, 166, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (223, 172, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (300, 211, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (301, 211, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (302, 212, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (303, 212, 6);
+INSERT INTO "public"."ChunkStorageServer" VALUES (304, 213, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (305, 213, 6);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -177,10 +188,10 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
+INSERT INTO "public"."File" VALUES (41, 1, 'nashli-shokala.png', '/testfolder', '2024-01-20 16:02:50.3408', '2024-01-20 16:02:50.3408');
+INSERT INTO "public"."File" VALUES (39, 1, 'nashli-shokala.png', '/', '2024-01-19 23:18:13.573738', '2024-01-19 23:18:13.573738');
+INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
-INSERT INTO "public"."File" VALUES (26, 1, 'sgfdsg', '/abcde/test', '2024-01-16 15:43:05', '2024-01-16 15:43:07');
-INSERT INTO "public"."File" VALUES (25, 1, 'abcd', '/abcde', '2024-01-16 15:34:05', '2024-01-16 15:34:10');
-INSERT INTO "public"."File" VALUES (28, 1, 'ghjgfhjk', '/abcde/test/nested', '2024-01-17 12:54:18', '2024-01-17 12:54:20');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -634,8 +645,8 @@ CREATE OR REPLACE FUNCTION "public"."get_directories"("directory" varchar)
   RETURNS TABLE("name" text) AS $BODY$BEGIN
 	
 	IF "directory" = '/' THEN
-		RETURN QUERY SELECT substring(f."path", 2) AS "directory_name"
-			FROM "File" AS f WHERE f."path" != "directory" AND f."path" ~* ('^(' || directory || ')[^/]+$')
+		RETURN QUERY SELECT regexp_replace(substring(f."path", 2), '/.*', '') AS "directory_name"
+			FROM "File" AS f WHERE f."path" != "directory" AND f."path" ~* ('^(' || directory || '[^\/]+)')
 			GROUP BY "directory_name";
 	ELSE
 		RETURN QUERY SELECT regexp_replace(f."path", '/.*/', '') AS "directory_name"
@@ -826,6 +837,19 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for is_file_exists
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."is_file_exists"("file_name" varchar, "file_path" varchar);
+CREATE OR REPLACE FUNCTION "public"."is_file_exists"("file_name" varchar, "file_path" varchar)
+  RETURNS "pg_catalog"."bool" AS $BODY$BEGIN
+
+	RETURN (EXISTS (SELECT * FROM "File" WHERE "name" = "file_name" AND "path" = "file_path"));
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for put_chunk
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."put_chunk"("chunk_file_id" int4, "chunk_name" varchar, "chunk_size" int4, "chunk_sequence_number" int4);
@@ -873,18 +897,44 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for set_file_updated_timestamp
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."set_file_updated_timestamp"("file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."set_file_updated_timestamp"("file_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	UPDATE "File" SET "updateDate" = now() WHERE "fileID" = "file_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for update_file
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."update_file"("file_id" int4, "file_name" varchar, "file_path" varchar);
+CREATE OR REPLACE FUNCTION "public"."update_file"("file_id" int4, "file_name" varchar, "file_path" varchar)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	UPDATE "File" SET "name" = "file_name", "path" = "file_path" WHERE "fileID" = "file_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 213, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 306, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 167, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 214, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -898,7 +948,7 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 29, true);
+SELECT setval('"public"."File_fileID_seq"', 43, true);
 
 -- ----------------------------
 -- Alter sequences owned by
