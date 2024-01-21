@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 20/01/2024 18:03:15
+ Date: 21/01/2024 18:12:39
 */
 
 
@@ -39,6 +39,17 @@ START 1
 CACHE 1;
 
 -- ----------------------------
+-- Sequence structure for CustomerGroup_customerGroupID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."CustomerGroup_customerGroupID_seq";
+CREATE SEQUENCE "public"."CustomerGroup_customerGroupID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
 -- Sequence structure for Customer_customerID_seq
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."Customer_customerID_seq";
@@ -50,10 +61,43 @@ START 1
 CACHE 1;
 
 -- ----------------------------
+-- Sequence structure for FileRight_fileRightID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."FileRight_fileRightID_seq";
+CREATE SEQUENCE "public"."FileRight_fileRightID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
 -- Sequence structure for File_fileID_seq
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."File_fileID_seq";
 CREATE SEQUENCE "public"."File_fileID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for GroupFileRight_groupFileRightID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."GroupFileRight_groupFileRightID_seq";
+CREATE SEQUENCE "public"."GroupFileRight_groupFileRightID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for Group_groupID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."Group_groupID_seq";
+CREATE SEQUENCE "public"."Group_groupID_seq" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 2147483647
@@ -110,8 +154,7 @@ INSERT INTO "public"."Chunk" VALUES (165, 23, '-3932-76-57-125-481162473-124-531
 INSERT INTO "public"."Chunk" VALUES (166, 23, '3718-26-44-38-85-65164-16019122-50-15-102-11127780-7554-43-128-9061-593212429-70', 524288, 9);
 INSERT INTO "public"."Chunk" VALUES (172, 23, '108-64-99-104311987105-116-66-74107-64-49-21-1191068-61735978-1141168693-6111890-39124', 170560, 10);
 INSERT INTO "public"."Chunk" VALUES (211, 39, '98-16-96-66-70-3099286-35-15-7874-3934199424-1175121109-204-13-436-413372-3183', 524288, 0);
-INSERT INTO "public"."Chunk" VALUES (212, 41, '-123-952556-2279112-1043919-1049325-68-124-120-428811563-119-133649-4085-118103420-12796', 524288, 0);
-INSERT INTO "public"."Chunk" VALUES (213, 41, '-30-75-50-10114-87-54-581214-121-6390-6411010397-1679-8359-9073-109-132-10612393-451718', 44986, 1);
+INSERT INTO "public"."Chunk" VALUES (214, 43, '-7591-3043-118488455-1511673497-8679-37-145866-93-105-1235548-98-12-497955-69-17', 117943, 0);
 
 -- ----------------------------
 -- Table structure for ChunkStorageServer
@@ -127,6 +170,8 @@ CREATE TABLE "public"."ChunkStorageServer" (
 -- ----------------------------
 -- Records of ChunkStorageServer
 -- ----------------------------
+INSERT INTO "public"."ChunkStorageServer" VALUES (306, 214, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (307, 214, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (193, 157, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (194, 157, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (195, 158, 2);
@@ -150,10 +195,6 @@ INSERT INTO "public"."ChunkStorageServer" VALUES (212, 166, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (223, 172, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (300, 211, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (301, 211, 6);
-INSERT INTO "public"."ChunkStorageServer" VALUES (302, 212, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (303, 212, 6);
-INSERT INTO "public"."ChunkStorageServer" VALUES (304, 213, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (305, 213, 6);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -172,6 +213,22 @@ CREATE TABLE "public"."Customer" (
 INSERT INTO "public"."Customer" VALUES (1, 'TestName', '$2a$10$P5UEPm2Ze/GLK1joYXyyoej3w.XF7nJoN3u40npUryPWUqo.jL6Q6');
 
 -- ----------------------------
+-- Table structure for CustomerGroup
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."CustomerGroup";
+CREATE TABLE "public"."CustomerGroup" (
+  "customerGroupID" int4 NOT NULL DEFAULT nextval('"CustomerGroup_customerGroupID_seq"'::regclass),
+  "groupID" int4 NOT NULL,
+  "customerID" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of CustomerGroup
+-- ----------------------------
+INSERT INTO "public"."CustomerGroup" VALUES (5, 5, 1);
+
+-- ----------------------------
 -- Table structure for File
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."File";
@@ -188,10 +245,58 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
-INSERT INTO "public"."File" VALUES (41, 1, 'nashli-shokala.png', '/testfolder', '2024-01-20 16:02:50.3408', '2024-01-20 16:02:50.3408');
 INSERT INTO "public"."File" VALUES (39, 1, 'nashli-shokala.png', '/', '2024-01-19 23:18:13.573738', '2024-01-19 23:18:13.573738');
 INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
+INSERT INTO "public"."File" VALUES (43, 1, 'gfhj.png', '/hello', '2024-01-21 12:26:13.389918', '2024-01-21 12:26:13.389918');
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
+
+-- ----------------------------
+-- Table structure for FileRight
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."FileRight";
+CREATE TABLE "public"."FileRight" (
+  "fileRightID" int4 NOT NULL DEFAULT nextval('"FileRight_fileRightID_seq"'::regclass),
+  "name" varchar(35) COLLATE "pg_catalog"."default" NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of FileRight
+-- ----------------------------
+INSERT INTO "public"."FileRight" VALUES (1, 'read');
+INSERT INTO "public"."FileRight" VALUES (2, 'write');
+
+-- ----------------------------
+-- Table structure for Group
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."Group";
+CREATE TABLE "public"."Group" (
+  "groupID" int4 NOT NULL DEFAULT nextval('"Group_groupID_seq"'::regclass),
+  "ownerID" int4 NOT NULL,
+  "name" varchar(35) COLLATE "pg_catalog"."default" NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of Group
+-- ----------------------------
+INSERT INTO "public"."Group" VALUES (5, 1, 'TestGroup');
+
+-- ----------------------------
+-- Table structure for GroupFileRight
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."GroupFileRight";
+CREATE TABLE "public"."GroupFileRight" (
+  "groupFileRightID" int4 NOT NULL DEFAULT nextval('"GroupFileRight_groupFileRightID_seq"'::regclass),
+  "fileID" int4 NOT NULL,
+  "groupID" int4 NOT NULL,
+  "fileRightID" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of GroupFileRight
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -255,6 +360,37 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for add_customer_group
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."add_customer_group"("group_id" int4, "customer_id" int4);
+CREATE OR REPLACE FUNCTION "public"."add_customer_group"("group_id" int4, "customer_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	INSERT INTO "CustomerGroup" ("groupID", "customerID") VALUES ("group_id", "customer_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for add_group
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."add_group"("customer_id" int4, "name" varchar);
+CREATE OR REPLACE FUNCTION "public"."add_group"("customer_id" int4, "name" varchar)
+  RETURNS "pg_catalog"."void" AS $BODY$
+	DECLARE
+		"resultID" INT4;
+	
+	BEGIN
+	
+	INSERT INTO "Group" ("ownerID", "name") VALUES ("customer_id", "name") RETURNING "groupID" INTO "resultID";
+	PERFORM add_customer_group("resultID", "customer_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for add_storage_server
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."add_storage_server"("name" varchar, "address" varchar, "status_id" int4);
@@ -309,6 +445,26 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for create_customer_group_table
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."create_customer_group_table"();
+CREATE OR REPLACE FUNCTION "public"."create_customer_group_table"()
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	CREATE TABLE IF NOT EXISTS "CustomerGroup" (
+		"customerGroupID" serial PRIMARY KEY,
+		"groupID" int4 NOT NULL,
+		"customerID" int4 NOT NULL,
+		
+		FOREIGN KEY ("groupID") REFERENCES "Group" ("groupID") ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY ("customerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE
+	);
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for create_customer_role_table
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."create_customer_role_table"();
@@ -356,6 +512,9 @@ CREATE OR REPLACE FUNCTION "public"."create_file_right_table"()
 		"fileRightID" serial PRIMARY KEY,
 		"name" varchar(35) UNIQUE NOT NULL
 	);
+	
+	INSERT INTO "FileRight" ("name") VALUES ('read');
+	INSERT INTO "FileRight" ("name") VALUES ('write');
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -415,7 +574,10 @@ CREATE OR REPLACE FUNCTION "public"."create_group_table"()
 	
 	CREATE TABLE IF NOT EXISTS "Group" (
 		"groupID" serial PRIMARY KEY,
-		"name" varchar(35) UNIQUE NOT NULL
+		"ownerID" int4 NOT NULL,
+		"name" varchar(35) UNIQUE NOT NULL,
+		
+		FOREIGN KEY ("ownerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE
 	);
 	
 END$BODY$
@@ -478,26 +640,6 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
--- Function structure for create_user_group_table
--- ----------------------------
-DROP FUNCTION IF EXISTS "public"."create_user_group_table"();
-CREATE OR REPLACE FUNCTION "public"."create_user_group_table"()
-  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
-	
-	CREATE TABLE IF NOT EXISTS "CustomerGroup" (
-		"customerGroupID" serial PRIMARY KEY,
-		"groupID" int4 NOT NULL,
-		"customerID" int4 NOT NULL,
-		
-		FOREIGN KEY ("groupID") REFERENCES "Group" ("groupID") ON UPDATE CASCADE ON DELETE CASCADE,
-		FOREIGN KEY ("customerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE
-	);
-	
-END$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-
--- ----------------------------
 -- Function structure for delete_chunk
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."delete_chunk"("chunk_id" int4);
@@ -518,6 +660,19 @@ CREATE OR REPLACE FUNCTION "public"."delete_file"("file_id" int4)
   RETURNS "pg_catalog"."void" AS $BODY$BEGIN
 	
 	DELETE FROM "File" WHERE "fileID" = "file_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for delete_group
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."delete_group"("group_id" int4);
+CREATE OR REPLACE FUNCTION "public"."delete_group"("group_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	DELETE FROM "Group" WHERE "groupID" = "group_id";
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -625,6 +780,19 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_customer_group_count
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_customer_group_count"("group_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_customer_group_count"("group_id" int4)
+  RETURNS "pg_catalog"."int8" AS $BODY$BEGIN
+
+	RETURN (SELECT COUNT(*) FROM "CustomerGroup" WHERE "groupID" = "group_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for get_customers_count
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_customers_count"();
@@ -728,6 +896,40 @@ CREATE OR REPLACE FUNCTION "public"."get_files"("directory" varchar)
 	
 	RETURN QUERY SELECT f."name", get_file_size(f."fileID"), get_file_extension(f."name"), f."uploadDate", f."updateDate" 
 		FROM "File" AS f WHERE f."path" = "directory";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_group
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_group"("group_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_group"("group_id" int4)
+  RETURNS TABLE("groupID" int4, "name" varchar, "customersCount" int8, "ownerName" varchar) AS $BODY$BEGIN
+
+	RETURN QUERY SELECT g."groupID", g."name", get_customer_group_count(g."groupID"), c."name" FROM "Group" AS g
+		LEFT JOIN "CustomerGroup" AS gg ON gg."groupID" = g."groupID"
+		LEFT JOIN "Customer" AS c ON c."customerID" = gg."customerID"
+		WHERE g."groupID" = "group_id";
+		
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_groups
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_groups"("customer_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_groups"("customer_id" int4)
+  RETURNS TABLE("groupID" int4, "name" varchar, "customersCount" int8, "ownerName" varchar) AS $BODY$BEGIN
+
+	RETURN QUERY SELECT g."groupID", g."name", get_customer_group_count(g."groupID"), c."name" FROM "Group" AS g
+		LEFT JOIN "CustomerGroup" AS gg ON gg."groupID" = g."groupID"
+		LEFT JOIN "Customer" AS c ON c."customerID" = gg."customerID"
+		WHERE g."ownerID" = "customer_id" OR gg."customerID" = "customer_id";
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -923,18 +1125,38 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for update_group
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."update_group"("group_id" int4, "group_name" varchar);
+CREATE OR REPLACE FUNCTION "public"."update_group"("group_id" int4, "group_name" varchar)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	UPDATE "Group" SET "name" = "group_name" WHERE "groupID" = "group_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 306, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 308, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 214, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 215, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."CustomerGroup_customerGroupID_seq"
+OWNED BY "public"."CustomerGroup"."customerGroupID";
+SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 6, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -946,9 +1168,30 @@ SELECT setval('"public"."Customer_customerID_seq"', 2, true);
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
+ALTER SEQUENCE "public"."FileRight_fileRightID_seq"
+OWNED BY "public"."FileRight"."fileRightID";
+SELECT setval('"public"."FileRight_fileRightID_seq"', 3, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 43, true);
+SELECT setval('"public"."File_fileID_seq"', 44, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."GroupFileRight_groupFileRightID_seq"
+OWNED BY "public"."GroupFileRight"."groupFileRightID";
+SELECT setval('"public"."GroupFileRight_groupFileRightID_seq"', 2, false);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."Group_groupID_seq"
+OWNED BY "public"."Group"."groupID";
+SELECT setval('"public"."Group_groupID_seq"', 6, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -985,6 +1228,11 @@ ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_name_key" UNIQUE ("name
 ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_pkey" PRIMARY KEY ("customerID");
 
 -- ----------------------------
+-- Primary Key structure for table CustomerGroup
+-- ----------------------------
+ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_pkey" PRIMARY KEY ("customerGroupID");
+
+-- ----------------------------
 -- Uniques structure for table File
 -- ----------------------------
 ALTER TABLE "public"."File" ADD CONSTRAINT "File_name_path_key" UNIQUE ("name", "path");
@@ -993,6 +1241,31 @@ ALTER TABLE "public"."File" ADD CONSTRAINT "File_name_path_key" UNIQUE ("name", 
 -- Primary Key structure for table File
 -- ----------------------------
 ALTER TABLE "public"."File" ADD CONSTRAINT "File_pkey" PRIMARY KEY ("fileID");
+
+-- ----------------------------
+-- Uniques structure for table FileRight
+-- ----------------------------
+ALTER TABLE "public"."FileRight" ADD CONSTRAINT "FileRight_name_key" UNIQUE ("name");
+
+-- ----------------------------
+-- Primary Key structure for table FileRight
+-- ----------------------------
+ALTER TABLE "public"."FileRight" ADD CONSTRAINT "FileRight_pkey" PRIMARY KEY ("fileRightID");
+
+-- ----------------------------
+-- Uniques structure for table Group
+-- ----------------------------
+ALTER TABLE "public"."Group" ADD CONSTRAINT "Group_name_key" UNIQUE ("name");
+
+-- ----------------------------
+-- Primary Key structure for table Group
+-- ----------------------------
+ALTER TABLE "public"."Group" ADD CONSTRAINT "Group_pkey" PRIMARY KEY ("groupID");
+
+-- ----------------------------
+-- Primary Key structure for table GroupFileRight
+-- ----------------------------
+ALTER TABLE "public"."GroupFileRight" ADD CONSTRAINT "GroupFileRight_pkey" PRIMARY KEY ("groupFileRightID");
 
 -- ----------------------------
 -- Uniques structure for table StorageServer
@@ -1027,9 +1300,27 @@ ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_chu
 ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_storageServerID_fkey" FOREIGN KEY ("storageServerID") REFERENCES "public"."StorageServer" ("storageServerID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
+-- Foreign Keys structure for table CustomerGroup
+-- ----------------------------
+ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_customerID_fkey" FOREIGN KEY ("customerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_groupID_fkey" FOREIGN KEY ("groupID") REFERENCES "public"."Group" ("groupID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ----------------------------
 -- Foreign Keys structure for table File
 -- ----------------------------
 ALTER TABLE "public"."File" ADD CONSTRAINT "File_ownerID_fkey" FOREIGN KEY ("ownerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ----------------------------
+-- Foreign Keys structure for table Group
+-- ----------------------------
+ALTER TABLE "public"."Group" ADD CONSTRAINT "Group_ownerID_fkey" FOREIGN KEY ("ownerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ----------------------------
+-- Foreign Keys structure for table GroupFileRight
+-- ----------------------------
+ALTER TABLE "public"."GroupFileRight" ADD CONSTRAINT "GroupFileRight_fileID_fkey" FOREIGN KEY ("fileID") REFERENCES "public"."File" ("fileID") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."GroupFileRight" ADD CONSTRAINT "GroupFileRight_fileRightID_fkey" FOREIGN KEY ("fileRightID") REFERENCES "public"."FileRight" ("fileRightID") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."GroupFileRight" ADD CONSTRAINT "GroupFileRight_groupID_fkey" FOREIGN KEY ("groupID") REFERENCES "public"."Group" ("groupID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
 -- Foreign Keys structure for table StorageServer
