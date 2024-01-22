@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 21/01/2024 18:12:39
+ Date: 22/01/2024 23:33:18
 */
 
 
@@ -248,6 +248,7 @@ CREATE TABLE "public"."File" (
 INSERT INTO "public"."File" VALUES (39, 1, 'nashli-shokala.png', '/', '2024-01-19 23:18:13.573738', '2024-01-19 23:18:13.573738');
 INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
 INSERT INTO "public"."File" VALUES (43, 1, 'gfhj.png', '/hello', '2024-01-21 12:26:13.389918', '2024-01-21 12:26:13.389918');
+INSERT INTO "public"."File" VALUES (44, 1, 'Upscales.ai_1697616705511.jpeg', 'root', '2024-01-22 23:00:32.823569', '2024-01-22 23:00:32.823569');
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
 
 -- ----------------------------
@@ -385,6 +386,19 @@ CREATE OR REPLACE FUNCTION "public"."add_group"("customer_id" int4, "name" varch
 	
 	INSERT INTO "Group" ("ownerID", "name") VALUES ("customer_id", "name") RETURNING "groupID" INTO "resultID";
 	PERFORM add_customer_group("resultID", "customer_id");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for add_group_file_right
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."add_group_file_right"("file_id" int4, "group_id" int4, "file_right_id" int4);
+CREATE OR REPLACE FUNCTION "public"."add_group_file_right"("file_id" int4, "group_id" int4, "file_right_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	INSERT INTO "GroupFileRight" ("fileID", "groupID", "fileRightID") VALUES ("file_id", "group_id", "file_right_id");
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -869,6 +883,34 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for get_file_right
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_file_right"("right_name" varchar);
+CREATE OR REPLACE FUNCTION "public"."get_file_right"("right_name" varchar)
+  RETURNS SETOF "public"."FileRight" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT * FROM "FileRight" WHERE "name" = "right_name";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_file_rights
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_file_rights"();
+CREATE OR REPLACE FUNCTION "public"."get_file_rights"()
+  RETURNS SETOF "public"."FileRight" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT * FROM "FileRight";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_file_size
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_file_size"("file_id" int4);
@@ -920,6 +962,20 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_group_file_right
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_group_file_right"("file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_group_file_right"("file_id" int4)
+  RETURNS SETOF "public"."GroupFileRight" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT * FROM "GroupFileRight" WHERE "fileID" = "file_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_groups
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_groups"("customer_id" int4);
@@ -930,6 +986,23 @@ CREATE OR REPLACE FUNCTION "public"."get_groups"("customer_id" int4)
 		LEFT JOIN "CustomerGroup" AS gg ON gg."groupID" = g."groupID"
 		LEFT JOIN "Customer" AS c ON c."customerID" = gg."customerID"
 		WHERE g."ownerID" = "customer_id" OR gg."customerID" = "customer_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
+-- Function structure for get_own_groups
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_own_groups"("customer_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_own_groups"("customer_id" int4)
+  RETURNS TABLE("groupID" int4, "name" varchar, "customersCount" int8, "ownerName" varchar) AS $BODY$BEGIN
+
+	RETURN QUERY SELECT g."groupID", g."name", get_customer_group_count(g."groupID"), c."name" FROM "Group" AS g
+		LEFT JOIN "CustomerGroup" AS gg ON gg."groupID" = g."groupID"
+		LEFT JOIN "Customer" AS c ON c."customerID" = gg."customerID"
+		WHERE g."ownerID" = "customer_id";
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -1177,7 +1250,7 @@ SELECT setval('"public"."FileRight_fileRightID_seq"', 3, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 44, true);
+SELECT setval('"public"."File_fileID_seq"', 45, true);
 
 -- ----------------------------
 -- Alter sequences owned by
