@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 22/01/2024 23:33:18
+ Date: 24/01/2024 19:40:15
 */
 
 
@@ -152,6 +152,7 @@ INSERT INTO "public"."Chunk" VALUES (163, 23, '32596153-1290-7505017275346-47-51
 INSERT INTO "public"."Chunk" VALUES (164, 23, '-124-54-60-127-65-8533-25-299072115-5769-114-98-123-204812258-3668-3172-115-113168264394', 524288, 7);
 INSERT INTO "public"."Chunk" VALUES (165, 23, '-3932-76-57-125-481162473-124-53106-207-1272152-112115-2812710-74-91-7894-100-38-5134-82-74', 524288, 8);
 INSERT INTO "public"."Chunk" VALUES (166, 23, '3718-26-44-38-85-65164-16019122-50-15-102-11127780-7554-43-128-9061-593212429-70', 524288, 9);
+INSERT INTO "public"."Chunk" VALUES (222, 50, '-2112-72-8-81-46105121-3535-6-98-50-4912475-29249112-233-11346-16114-119-1286124-102-7', 117943, 0);
 INSERT INTO "public"."Chunk" VALUES (172, 23, '108-64-99-104311987105-116-66-74107-64-49-21-1191068-61735978-1141168693-6111890-39124', 170560, 10);
 INSERT INTO "public"."Chunk" VALUES (211, 39, '98-16-96-66-70-3099286-35-15-7874-3934199424-1175121109-204-13-436-413372-3183', 524288, 0);
 INSERT INTO "public"."Chunk" VALUES (214, 43, '-7591-3043-118488455-1511673497-8679-37-145866-93-105-1235548-98-12-497955-69-17', 117943, 0);
@@ -193,6 +194,8 @@ INSERT INTO "public"."ChunkStorageServer" VALUES (210, 165, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (211, 166, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (212, 166, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (223, 172, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (320, 222, 2);
+INSERT INTO "public"."ChunkStorageServer" VALUES (321, 222, 6);
 INSERT INTO "public"."ChunkStorageServer" VALUES (300, 211, 2);
 INSERT INTO "public"."ChunkStorageServer" VALUES (301, 211, 6);
 
@@ -227,6 +230,7 @@ CREATE TABLE "public"."CustomerGroup" (
 -- Records of CustomerGroup
 -- ----------------------------
 INSERT INTO "public"."CustomerGroup" VALUES (5, 5, 1);
+INSERT INTO "public"."CustomerGroup" VALUES (6, 6, 1);
 
 -- ----------------------------
 -- Table structure for File
@@ -246,9 +250,9 @@ CREATE TABLE "public"."File" (
 -- Records of File
 -- ----------------------------
 INSERT INTO "public"."File" VALUES (39, 1, 'nashli-shokala.png', '/', '2024-01-19 23:18:13.573738', '2024-01-19 23:18:13.573738');
-INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
 INSERT INTO "public"."File" VALUES (43, 1, 'gfhj.png', '/hello', '2024-01-21 12:26:13.389918', '2024-01-21 12:26:13.389918');
-INSERT INTO "public"."File" VALUES (44, 1, 'Upscales.ai_1697616705511.jpeg', 'root', '2024-01-22 23:00:32.823569', '2024-01-22 23:00:32.823569');
+INSERT INTO "public"."File" VALUES (50, 1, 'wallpaperflare.com_wallpaper.jpg', '/', '2024-01-23 14:27:40.361947', '2024-01-23 14:27:40.361947');
+INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/hello', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
 
 -- ----------------------------
@@ -282,6 +286,7 @@ CREATE TABLE "public"."Group" (
 -- Records of Group
 -- ----------------------------
 INSERT INTO "public"."Group" VALUES (5, 1, 'TestGroup');
+INSERT INTO "public"."Group" VALUES (6, 1, 'Ababa');
 
 -- ----------------------------
 -- Table structure for GroupFileRight
@@ -298,6 +303,8 @@ CREATE TABLE "public"."GroupFileRight" (
 -- ----------------------------
 -- Records of GroupFileRight
 -- ----------------------------
+INSERT INTO "public"."GroupFileRight" VALUES (2, 50, 5, 1);
+INSERT INTO "public"."GroupFileRight" VALUES (12, 50, 6, 2);
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -693,6 +700,19 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for delete_group_file_right
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."delete_group_file_right"("file_id" int4, "group_id" int4, "file_right_id" int4);
+CREATE OR REPLACE FUNCTION "public"."delete_group_file_right"("file_id" int4, "group_id" int4, "file_right_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	DELETE FROM "GroupFileRight" WHERE "fileID" = "file_id" AND "groupID" = "group_id" AND "fileRightID" = "file_right_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for get_backup_servers
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_backup_servers"();
@@ -976,6 +996,22 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_group_file_rights_of_owner
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_group_file_rights_of_owner"("customer_id" int4, "file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."get_group_file_rights_of_owner"("customer_id" int4, "file_id" int4)
+  RETURNS SETOF "public"."GroupFileRight" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT gfr."groupFileRightID", gfr."fileID", gfr."groupID", gfr."fileRightID" FROM "GroupFileRight" AS gfr
+		LEFT JOIN "Group" AS g ON g."groupID" = gfr."groupID"
+		WHERE g."ownerID" = "customer_id" AND gfr."fileID" = "file_id";
+
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_groups
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_groups"("customer_id" int4);
@@ -1215,21 +1251,21 @@ END$BODY$
 -- ----------------------------
 ALTER SEQUENCE "public"."ChunkStorageServer_chunkStorageServerID_seq"
 OWNED BY "public"."ChunkStorageServer"."chunkStorageServerID";
-SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 308, true);
+SELECT setval('"public"."ChunkStorageServer_chunkStorageServerID_seq"', 322, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Chunk_chunkID_seq"
 OWNED BY "public"."Chunk"."chunkID";
-SELECT setval('"public"."Chunk_chunkID_seq"', 215, true);
+SELECT setval('"public"."Chunk_chunkID_seq"', 223, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."CustomerGroup_customerGroupID_seq"
 OWNED BY "public"."CustomerGroup"."customerGroupID";
-SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 6, true);
+SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 7, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -1250,21 +1286,21 @@ SELECT setval('"public"."FileRight_fileRightID_seq"', 3, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."File_fileID_seq"
 OWNED BY "public"."File"."fileID";
-SELECT setval('"public"."File_fileID_seq"', 45, true);
+SELECT setval('"public"."File_fileID_seq"', 51, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."GroupFileRight_groupFileRightID_seq"
 OWNED BY "public"."GroupFileRight"."groupFileRightID";
-SELECT setval('"public"."GroupFileRight_groupFileRightID_seq"', 2, false);
+SELECT setval('"public"."GroupFileRight_groupFileRightID_seq"', 13, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."Group_groupID_seq"
 OWNED BY "public"."Group"."groupID";
-SELECT setval('"public"."Group_groupID_seq"', 6, true);
+SELECT setval('"public"."Group_groupID_seq"', 7, true);
 
 -- ----------------------------
 -- Alter sequences owned by
