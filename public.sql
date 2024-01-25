@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 24/01/2024 19:40:15
+ Date: 25/01/2024 21:30:39
 */
 
 
@@ -214,6 +214,7 @@ CREATE TABLE "public"."Customer" (
 -- Records of Customer
 -- ----------------------------
 INSERT INTO "public"."Customer" VALUES (1, 'TestName', '$2a$10$P5UEPm2Ze/GLK1joYXyyoej3w.XF7nJoN3u40npUryPWUqo.jL6Q6');
+INSERT INTO "public"."Customer" VALUES (2, 'testtest', '$2a$10$raH0tSJL/Ley/FuOlfJt1eLwo.rmU/rUQ.Xjzq/PABzBYG4FgghJi');
 
 -- ----------------------------
 -- Table structure for CustomerGroup
@@ -251,8 +252,8 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 INSERT INTO "public"."File" VALUES (39, 1, 'nashli-shokala.png', '/', '2024-01-19 23:18:13.573738', '2024-01-19 23:18:13.573738');
 INSERT INTO "public"."File" VALUES (43, 1, 'gfhj.png', '/hello', '2024-01-21 12:26:13.389918', '2024-01-21 12:26:13.389918');
-INSERT INTO "public"."File" VALUES (50, 1, 'wallpaperflare.com_wallpaper.jpg', '/', '2024-01-23 14:27:40.361947', '2024-01-23 14:27:40.361947');
 INSERT INTO "public"."File" VALUES (42, 1, 'dsfg', '/hello', '2024-01-20 18:02:24.242434', '2024-01-20 18:02:24.242434');
+INSERT INTO "public"."File" VALUES (50, 1, 'zalupa.png', '/', '2024-01-23 14:27:40.361947', '2024-01-23 14:27:40.361947');
 INSERT INTO "public"."File" VALUES (23, 1, 'test.cpvd', '/', '2024-01-14 18:24:38.519348', '2024-01-14 18:24:38.519348');
 
 -- ----------------------------
@@ -304,7 +305,7 @@ CREATE TABLE "public"."GroupFileRight" (
 -- Records of GroupFileRight
 -- ----------------------------
 INSERT INTO "public"."GroupFileRight" VALUES (2, 50, 5, 1);
-INSERT INTO "public"."GroupFileRight" VALUES (12, 50, 6, 2);
+INSERT INTO "public"."GroupFileRight" VALUES (12, 50, 6, 1);
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -1135,6 +1136,24 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for is_customer_have_file_right
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."is_customer_have_file_right"("customer_id" int4, "file_id" int4, "right" varchar);
+CREATE OR REPLACE FUNCTION "public"."is_customer_have_file_right"("customer_id" int4, "file_id" int4, "right" varchar)
+  RETURNS "pg_catalog"."bool" AS $BODY$DECLARE
+	"file_right_id" int4 := (SELECT "fileRightID" FROM get_file_right("right"));
+	
+	BEGIN
+	RETURN EXISTS (SELECT gfr."groupFileRightID" FROM "CustomerGroup" AS cg
+		LEFT JOIN "GroupFileRight" AS gfr ON gfr."groupID" = cg."groupID" AND gfr."fileID" = "file_id"
+		WHERE cg."customerID" = "customer_id" AND "fileRightID" = "file_right_id"
+	);
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for is_customer_name_free
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."is_customer_name_free"("customer_name" varchar);
@@ -1155,6 +1174,19 @@ CREATE OR REPLACE FUNCTION "public"."is_file_exists"("file_name" varchar, "file_
   RETURNS "pg_catalog"."bool" AS $BODY$BEGIN
 
 	RETURN (EXISTS (SELECT * FROM "File" WHERE "name" = "file_name" AND "path" = "file_path"));
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
+-- Function structure for is_file_have_group_rights
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."is_file_have_group_rights"("file_id" int4);
+CREATE OR REPLACE FUNCTION "public"."is_file_have_group_rights"("file_id" int4)
+  RETURNS "pg_catalog"."bool" AS $BODY$BEGIN
+
+	RETURN EXISTS (SELECT * FROM "GroupFileRight" WHERE "fileID" = "file_id");
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -1272,7 +1304,7 @@ SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 7, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."Customer_customerID_seq"
 OWNED BY "public"."Customer"."customerID";
-SELECT setval('"public"."Customer_customerID_seq"', 2, true);
+SELECT setval('"public"."Customer_customerID_seq"', 3, true);
 
 -- ----------------------------
 -- Alter sequences owned by
