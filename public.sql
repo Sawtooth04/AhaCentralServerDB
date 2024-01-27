@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 27/01/2024 15:41:30
+ Date: 27/01/2024 22:49:37
 */
 
 
@@ -43,6 +43,17 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."CustomerGroup_customerGroupID_seq";
 CREATE SEQUENCE "public"."CustomerGroup_customerGroupID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for CustomerRole_customerRoleID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."CustomerRole_customerRoleID_seq";
+CREATE SEQUENCE "public"."CustomerRole_customerRoleID_seq" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 2147483647
@@ -98,6 +109,17 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."Group_groupID_seq";
 CREATE SEQUENCE "public"."Group_groupID_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for Role_roleID_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."Role_roleID_seq";
+CREATE SEQUENCE "public"."Role_roleID_seq" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 2147483647
@@ -234,6 +256,22 @@ INSERT INTO "public"."CustomerGroup" VALUES (5, 5, 1);
 INSERT INTO "public"."CustomerGroup" VALUES (6, 6, 1);
 
 -- ----------------------------
+-- Table structure for CustomerRole
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."CustomerRole";
+CREATE TABLE "public"."CustomerRole" (
+  "customerRoleID" int4 NOT NULL DEFAULT nextval('"CustomerRole_customerRoleID_seq"'::regclass),
+  "customerID" int4 NOT NULL,
+  "roleID" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of CustomerRole
+-- ----------------------------
+INSERT INTO "public"."CustomerRole" VALUES (1, 1, 1);
+
+-- ----------------------------
 -- Table structure for File
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."File";
@@ -306,6 +344,21 @@ CREATE TABLE "public"."GroupFileRight" (
 -- ----------------------------
 INSERT INTO "public"."GroupFileRight" VALUES (2, 50, 5, 1);
 INSERT INTO "public"."GroupFileRight" VALUES (12, 50, 6, 1);
+
+-- ----------------------------
+-- Table structure for Role
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."Role";
+CREATE TABLE "public"."Role" (
+  "roleID" int4 NOT NULL DEFAULT nextval('"Role_roleID_seq"'::regclass),
+  "name" varchar(35) COLLATE "pg_catalog"."default" NOT NULL
+)
+;
+
+-- ----------------------------
+-- Records of Role
+-- ----------------------------
+INSERT INTO "public"."Role" VALUES (1, 'admin');
 
 -- ----------------------------
 -- Table structure for StorageServer
@@ -498,7 +551,7 @@ CREATE OR REPLACE FUNCTION "public"."create_customer_role_table"()
 		"customerID" int4 NOT NULL,
 		"roleID" int4 NOT NULL,
 	
-		FOREIGN KEY ("сustomerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY ("customerID") REFERENCES "Customer" ("customerID") ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY ("roleID") REFERENCES "Role" ("roleID") ON UPDATE CASCADE ON DELETE CASCADE
 	);
 	
@@ -617,6 +670,8 @@ CREATE OR REPLACE FUNCTION "public"."create_role_table"()
 		"roleID" serial PRIMARY KEY,
 		"name" varchar(35) UNIQUE NOT NULL
 	);
+	
+	INSERT INTO "Role" ("name") VALUES ('admin');
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE
@@ -1181,6 +1236,21 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for is_customer_have_role
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."is_customer_have_role"("customer_id" int4, "role" varchar);
+CREATE OR REPLACE FUNCTION "public"."is_customer_have_role"("customer_id" int4, "role" varchar)
+  RETURNS "pg_catalog"."bool" AS $BODY$BEGIN
+
+	RETURN EXISTS (SELECT * FROM "CustomerRole" AS cr
+		LEFT JOIN "Role" AS r ON r."roleID" = cr."roleID"
+		WHERE "customerID" = "customer_id" AND r."name" = "role");
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for is_customer_name_free
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."is_customer_name_free"("customer_name" varchar);
@@ -1329,6 +1399,13 @@ SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 7, true);
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
+ALTER SEQUENCE "public"."CustomerRole_customerRoleID_seq"
+OWNED BY "public"."CustomerRole"."customerRoleID";
+SELECT setval('"public"."CustomerRole_customerRoleID_seq"', 2, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
 ALTER SEQUENCE "public"."Customer_customerID_seq"
 OWNED BY "public"."Customer"."customerID";
 SELECT setval('"public"."Customer_customerID_seq"', 6, true);
@@ -1360,6 +1437,13 @@ SELECT setval('"public"."GroupFileRight_groupFileRightID_seq"', 13, true);
 ALTER SEQUENCE "public"."Group_groupID_seq"
 OWNED BY "public"."Group"."groupID";
 SELECT setval('"public"."Group_groupID_seq"', 7, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."Role_roleID_seq"
+OWNED BY "public"."Role"."roleID";
+SELECT setval('"public"."Role_roleID_seq"', 2, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -1401,6 +1485,11 @@ ALTER TABLE "public"."Customer" ADD CONSTRAINT "Customer_pkey" PRIMARY KEY ("cus
 ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_pkey" PRIMARY KEY ("customerGroupID");
 
 -- ----------------------------
+-- Primary Key structure for table CustomerRole
+-- ----------------------------
+ALTER TABLE "public"."CustomerRole" ADD CONSTRAINT "CustomerRole_pkey" PRIMARY KEY ("customerRoleID");
+
+-- ----------------------------
 -- Uniques structure for table File
 -- ----------------------------
 ALTER TABLE "public"."File" ADD CONSTRAINT "File_name_path_key" UNIQUE ("name", "path");
@@ -1434,6 +1523,16 @@ ALTER TABLE "public"."Group" ADD CONSTRAINT "Group_pkey" PRIMARY KEY ("groupID")
 -- Primary Key structure for table GroupFileRight
 -- ----------------------------
 ALTER TABLE "public"."GroupFileRight" ADD CONSTRAINT "GroupFileRight_pkey" PRIMARY KEY ("groupFileRightID");
+
+-- ----------------------------
+-- Uniques structure for table Role
+-- ----------------------------
+ALTER TABLE "public"."Role" ADD CONSTRAINT "Role_name_key" UNIQUE ("name");
+
+-- ----------------------------
+-- Primary Key structure for table Role
+-- ----------------------------
+ALTER TABLE "public"."Role" ADD CONSTRAINT "Role_pkey" PRIMARY KEY ("roleID");
 
 -- ----------------------------
 -- Uniques structure for table StorageServer
@@ -1472,6 +1571,12 @@ ALTER TABLE "public"."ChunkStorageServer" ADD CONSTRAINT "ChunkStorageServer_sto
 -- ----------------------------
 ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_customerID_fkey" FOREIGN KEY ("customerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "public"."CustomerGroup" ADD CONSTRAINT "CustomerGroup_groupID_fkey" FOREIGN KEY ("groupID") REFERENCES "public"."Group" ("groupID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ----------------------------
+-- Foreign Keys structure for table CustomerRole
+-- ----------------------------
+ALTER TABLE "public"."CustomerRole" ADD CONSTRAINT "CustomerRole_customerID_fkey" FOREIGN KEY ("customerID") REFERENCES "public"."Customer" ("customerID") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."CustomerRole" ADD CONSTRAINT "CustomerRole_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "public"."Role" ("roleID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ----------------------------
 -- Foreign Keys structure for table File
