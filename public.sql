@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 25/01/2024 21:30:39
+ Date: 27/01/2024 15:41:30
 */
 
 
@@ -714,6 +714,19 @@ END$BODY$
   COST 100;
 
 -- ----------------------------
+-- Function structure for delete_storage_server
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."delete_storage_server"("storage_server_id" int4);
+CREATE OR REPLACE FUNCTION "public"."delete_storage_server"("storage_server_id" int4)
+  RETURNS "pg_catalog"."void" AS $BODY$BEGIN
+	
+	DELETE FROM "StorageServer" WHERE "storageServerID" = "storage_server_id";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+-- ----------------------------
 -- Function structure for get_backup_servers
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_backup_servers"();
@@ -1089,6 +1102,20 @@ END$BODY$
   ROWS 1000;
 
 -- ----------------------------
+-- Function structure for get_storage_server_statuses
+-- ----------------------------
+DROP FUNCTION IF EXISTS "public"."get_storage_server_statuses"();
+CREATE OR REPLACE FUNCTION "public"."get_storage_server_statuses"()
+  RETURNS SETOF "public"."StorageServerStatus" AS $BODY$BEGIN
+
+	RETURN QUERY SELECT * FROM "StorageServerStatus";
+	
+END$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+
+-- ----------------------------
 -- Function structure for get_storage_servers
 -- ----------------------------
 DROP FUNCTION IF EXISTS "public"."get_storage_servers"();
@@ -1304,7 +1331,7 @@ SELECT setval('"public"."CustomerGroup_customerGroupID_seq"', 7, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."Customer_customerID_seq"
 OWNED BY "public"."Customer"."customerID";
-SELECT setval('"public"."Customer_customerID_seq"', 3, true);
+SELECT setval('"public"."Customer_customerID_seq"', 6, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -1346,7 +1373,7 @@ SELECT setval('"public"."StorageServerStatus_storageServerStatusID_seq"', 3, tru
 -- ----------------------------
 ALTER SEQUENCE "public"."StorageServer_storageServerID_seq"
 OWNED BY "public"."StorageServer"."storageServerID";
-SELECT setval('"public"."StorageServer_storageServerID_seq"', 7, true);
+SELECT setval('"public"."StorageServer_storageServerID_seq"', 13, true);
 
 -- ----------------------------
 -- Primary Key structure for table Chunk
