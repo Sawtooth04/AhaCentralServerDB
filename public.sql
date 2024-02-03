@@ -12,7 +12,7 @@
  Target Server Version : 150001
  File Encoding         : 65001
 
- Date: 31/01/2024 21:37:03
+ Date: 03/02/2024 15:48:08
 */
 
 
@@ -164,8 +164,6 @@ CREATE TABLE "public"."Chunk" (
 -- ----------------------------
 -- Records of Chunk
 -- ----------------------------
-INSERT INTO "public"."Chunk" VALUES (2380, 85, '-2112-72-8-81-46105121-3535-6-98-50-4912475-29249112-233-11346-16114-119-1286124-102-7', 117943, 0);
-INSERT INTO "public"."Chunk" VALUES (2378, 83, '-319268-415-68-107652171-47-2965-34-60-671314-10-8959529496-3128-7847-121104-2953', 67614, 0);
 
 -- ----------------------------
 -- Table structure for ChunkStorageServer
@@ -181,10 +179,6 @@ CREATE TABLE "public"."ChunkStorageServer" (
 -- ----------------------------
 -- Records of ChunkStorageServer
 -- ----------------------------
-INSERT INTO "public"."ChunkStorageServer" VALUES (5172, 2380, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (5173, 2380, 6);
-INSERT INTO "public"."ChunkStorageServer" VALUES (5168, 2378, 2);
-INSERT INTO "public"."ChunkStorageServer" VALUES (5169, 2378, 6);
 
 -- ----------------------------
 -- Table structure for Customer
@@ -200,8 +194,6 @@ CREATE TABLE "public"."Customer" (
 -- ----------------------------
 -- Records of Customer
 -- ----------------------------
-INSERT INTO "public"."Customer" VALUES (1, 'TestName', '$2a$10$P5UEPm2Ze/GLK1joYXyyoej3w.XF7nJoN3u40npUryPWUqo.jL6Q6');
-INSERT INTO "public"."Customer" VALUES (6, 'testaccount', '$2a$10$Xq8qoWjgWJ6cmRek6S8pmef8RA2yqBCh.cvonppnsZIArsok8pcqS');
 
 -- ----------------------------
 -- Table structure for CustomerGroup
@@ -217,8 +209,6 @@ CREATE TABLE "public"."CustomerGroup" (
 -- ----------------------------
 -- Records of CustomerGroup
 -- ----------------------------
-INSERT INTO "public"."CustomerGroup" VALUES (5, 5, 1);
-INSERT INTO "public"."CustomerGroup" VALUES (6, 6, 1);
 
 -- ----------------------------
 -- Table structure for CustomerRole
@@ -234,7 +224,6 @@ CREATE TABLE "public"."CustomerRole" (
 -- ----------------------------
 -- Records of CustomerRole
 -- ----------------------------
-INSERT INTO "public"."CustomerRole" VALUES (1, 1, 1);
 
 -- ----------------------------
 -- Table structure for File
@@ -253,8 +242,6 @@ CREATE TABLE "public"."File" (
 -- ----------------------------
 -- Records of File
 -- ----------------------------
-INSERT INTO "public"."File" VALUES (83, 1, '[Torrent-Soft.Net]_Adobe Acrobat Pro 2023.003.20244 RePack by KpoJIuK.torrent', '/', '2024-01-30 16:01:15.207818', '2024-01-30 16:01:15.207818');
-INSERT INTO "public"."File" VALUES (85, 1, 'wallpaperflare.com_wallpaper.jpg', '/', '2024-01-30 16:07:46.450385', '2024-01-30 16:07:46.450385');
 
 -- ----------------------------
 -- Table structure for FileRight
@@ -286,8 +273,6 @@ CREATE TABLE "public"."Group" (
 -- ----------------------------
 -- Records of Group
 -- ----------------------------
-INSERT INTO "public"."Group" VALUES (5, 1, 'TestGroup');
-INSERT INTO "public"."Group" VALUES (6, 1, 'Ababa');
 
 -- ----------------------------
 -- Table structure for GroupFileRight
@@ -335,9 +320,6 @@ CREATE TABLE "public"."StorageServer" (
 -- ----------------------------
 -- Records of StorageServer
 -- ----------------------------
-INSERT INTO "public"."StorageServer" VALUES (4, 'petr-server', 'http://192.168.1.103:8090', 1);
-INSERT INTO "public"."StorageServer" VALUES (2, 'test-server', 'http://127.0.0.1:8090', 1);
-INSERT INTO "public"."StorageServer" VALUES (6, 'test-server-1', 'http://127.0.0.1:8091', 2);
 
 -- ----------------------------
 -- Table structure for StorageServerStatus
